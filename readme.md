@@ -3,26 +3,65 @@ ErgoTravel
 
 ![ErgoTravel](https://i.imgur.com/H9t6Q7b.png)
 
+## Symlink to qmk directory
 
-A split ergo 4x6 keyboard with 2 or 3 thumb keys and extra inner macro keys designed by Pierre Constantineau. [More info on the GitHub Repo](https://github.com/jpconstantineau/ErgoTravel).
+```sh
+ln -s <path-to-this-dir> ~/qmk_firmware/keyboards/ergotravel/keymaps/yourname
+```
 
-**Status** The ErgoTravel is currently being beta-tested.  
+## Flashing
 
-Keyboard Maintainer: [/u/jpconstantineau](https://github.com/jpconstantineau)  
+```sh
+qmk flash -kb ergotravel -km timeless-qwerty -bl avrdude-split-right
+qmk flash -kb ergotravel -km timeless-qwerty -bl avrdude-split-left
+```
 
-Hardware Supported: Pro Micro (ATmega32U4) 
+## Advanced configuration and fine tuning
 
-Hardware Availability: [Group Buys](https://keyboards.jpconstantineau.com/) or order your own [yourself](https://github.com/jpconstantineau/ErgoTravel/blob/master/OrderingInstructions.md)
+Here is how to troubleshoot and tune:
 
+Noticeable delay when tapping HRMs: Increase FLOW_TAP_TERM.
 
-Make example for this keyboard (after setting up your build environment):
+- False negatives (same-hand): Reduce `TAPPING_TERM` (or disable Chordal Hold)
 
-    make ergotravel/rev1:default
+- False negatives (cross-hand): Reduce `FLOW_TAP_TERM`
 
-Example of flashing this keyboard:
+- False positives (same-hand): Increase `TAPPING_TERM`
 
-    make ergotravel/rev1:default:avrdude
+- False positives (cross-hand): Increase `FLOW_TAP_TERM`
 
-See [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) then the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information.
+In the above, "false positives" mean triggering modifiers accidentally, while a "false negatives" mean failing to trigger modifiers when they are desired:
 
-A build guide for this keyboard can be found here: [Build Guide](https://github.com/jpconstantineau)
+Additionally, all options are per-key configurable (see TAPPING_TERM_PER_KEY, PERMISSIVE_HOLD_PER_KEY, get_speculative_hold()), or even more finely, are per-chord configurable. Personally, I find it helpful to:
+
+- Set shorter timeouts on my Shift HRMs, through TAPPING_TERM_PER_KEY + the get_tapping_term() callback. I use HRMs for shifting, rather than a thumb shift key like urob does.
+
+- Enable Flow Tap only on my pinky HRMs, through get_flow_tap_term().
+
+- For Chordal Hold, use the get_chordal_hold() callback to define a few exceptions to the "opposite hands" rule.
+
+Hopefully something in this guide has been helpful to you. Enjoy your HRMs!
+
+QMK documentation references:
+
+- [Tapping term](https://docs.qmk.fm/tap_hold#tapping-term)
+
+- [Permissive Hold](https://docs.qmk.fm/tap_hold#permissive-hold)
+
+- [Flow Tap](https://docs.qmk.fm/tap_hold#flow-tap)
+
+- [Chordal Hold](https://docs.qmk.fm/tap_hold#chordal-hold)
+
+- [Speculative Hold](https://docs.qmk.fm/tap_hold#speculative-hold)
+
+Related links:
+
+- [my keymap – an example implementation](https://github.com/getreuer/qmk-keymap)
+
+- [Home row mods are hard to use](https://getreuer.info/posts/keyboards/faqs/index.html#home-row-mods-are-hard-to-use)
+
+- [A guide to home row mods](https://precondition.github.io/home-row-mods)
+
+- [Layout Buffet – Home-row mods](https://blog.zsa.io/layout-buffet-home-row-mods/)
+
+[copied from this reddit post:](https://www.reddit.com/r/ErgoMechKeyboards/comments/1q1jo3c/urobs_zmk_timeless_home_row_mods_ported_to_native/)
